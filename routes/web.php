@@ -15,5 +15,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-   return Apartment::with('image')->latest()->get();
+   return redirect(env('BASE_APP_URL'));
 });

@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts;
 
 use App\Models\Apartment;
+use App\Models\Room;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
@@ -42,3 +43,5 @@ class ApartmentsListLayout extends Table
         ];
     }
 }
+
+Room::where('apartment_id', 1)->chunk(100, function ($rooms) { foreach ($rooms as $room) { $room->landlord_id = 1;$room->save();}});
