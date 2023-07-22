@@ -3,10 +3,18 @@
 namespace App\Orchid\Screens;
 
 use App\Models\Apartment;
+use App\Models\Defaulter;
+use App\Models\Payment;
+use App\Models\Room;
+use App\Models\TenantRoom;
 use App\Orchid\Layouts\ApartmentsListLayout;
+use App\Orchid\Layouts\DefaultersChart;
 use App\Orchid\Layouts\Examples\ChartBarExample;
 use App\Orchid\Layouts\Examples\ChartLineExample;
+use App\Orchid\Layouts\PaymentsChart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Orchid\Screen\Repository;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
@@ -29,42 +37,84 @@ class DashboardScreen extends Screen
      */
     public function query(): iterable
     {
-        return [
-            'charts'  => [
-                [
-                    'name'   => 'Some Data',
-                    'values' => [25, 40, 30, 35, 8, 52, 17],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
-                ],
-                [
-                    'name'   => 'Another Set',
-                    'values' => [25, 50, -10, 15, 18, 32, 27],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
-                ],
-                [
-                    'name'   => 'Yet Another',
-                    'values' => [15, 20, -3, -15, 58, 12, -17],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
-                ],
-                [
-                    'name'   => 'And Last',
-                    'values' => [10, 33, -8, -3, 70, 20, -34],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
-                ],
-            ],
-            'table'   => [
-                new Repository(['id' => 100, 'name' => self::TEXT_EXAMPLE, 'price' => 10.24, 'created_at' => '01.01.2020']),
-                new Repository(['id' => 200, 'name' => self::TEXT_EXAMPLE, 'price' => 65.9, 'created_at' => '01.01.2020']),
-                new Repository(['id' => 300, 'name' => self::TEXT_EXAMPLE, 'price' => 754.2, 'created_at' => '01.01.2020']),
-                new Repository(['id' => 400, 'name' => self::TEXT_EXAMPLE, 'price' => 0.1, 'created_at' => '01.01.2020']),
-                new Repository(['id' => 500, 'name' => self::TEXT_EXAMPLE, 'price' => 0.15, 'created_at' => '01.01.2020']),
+        $monthName = strtolower(Carbon::now()->format('F'));
+        $current_year = date('Y');
 
-            ],
+        $rent_collected = Payment::where([['month', $monthName], ['year', $current_year], ['is_collected', true]])->sum('amount');
+        $pending_rent = Payment::notDefaulted()->inCompleteTransaction()->sum('amount');
+        $defaulters_count = Defaulter::where('has_paid', false)->count();
+        $defaulters_amount = Defaulter::where('has_paid', false)->sum('amount');
+
+        $tenants_count = TenantRoom::distinct('tenant_id')->count();
+        $apartments_count = Apartment::count();
+        $rooms_count = Room::count();
+        $vaccant_rooms = Room::where('is_vaccant', true)->count();
+
+        $payments = Payment::select('month', DB::raw('sum(amount) as total'))
+            ->groupBy('month')
+            ->where('created_at', '>=', now()->subMonths(7))->get();
+        $paymentsMonths = [];
+        $paymentsTotal = [];
+
+        foreach ($payments as $detail) {
+            array_push($paymentsMonths, ucwords($detail['month']));
+            array_push($paymentsTotal, $detail['total']);
+        }
+
+        $defaultersTotals = Defaulter::select('month', DB::raw('sum(amount) as total'))
+            ->groupBy('month')
+            ->where('created_at', '>=', now()->subMonths(7))->get();
+        $defaultersTotalMonths = [];
+        $defaultersTotalTotal = [];
+
+        foreach ($defaultersTotals as $detail) {
+            array_push($defaultersTotalMonths, ucwords($detail['month']));
+            array_push($defaultersTotalTotal, $detail['total']);
+        }
+
+        $defualtersCount = Defaulter::select('month', DB::raw('count(*) as total'))
+            ->groupBy('month')
+            ->where('created_at', '>=', now()->subMonths(7))->get();
+        $defualtersCountMonths = [];
+        $defualtersCountTotal = [];
+
+        foreach ($defualtersCount as $detail) {
+            array_push($defualtersCountMonths, ucwords($detail['month']));
+            array_push($defualtersCountTotal, $detail['total']);
+        }
+
+        return [
             'metrics' => [
-                'sales'    => ['value' => number_format(6851)],
-                'visitors' => ['value' => number_format(24668)],
-                'orders'   => ['value' => number_format(10000)],
-                'total'    => number_format(65661),
+                'rent_collected' => ['value' => number_format($rent_collected)],
+                'pending_rent' => ['value' => number_format($pending_rent)],
+                'defaulters_count' => ['value' => number_format($defaulters_count)],
+                'defaulters_amount' => number_format($defaulters_amount),
+            ],
+
+            'metrics2' => [
+                'tenants_count' => ['value' => number_format($tenants_count)],
+                'apartments_count' => ['value' => number_format($apartments_count)],
+                'rooms_count' => ['value' => number_format($rooms_count)],
+                'vaccant_rooms' => number_format($vaccant_rooms),
+            ],
+
+
+            'payments' => [[
+                'values' => $paymentsTotal,
+                'labels' => $paymentsMonths,
+            ]],
+
+            'defaulters' => [
+                [
+                    'values' => $defaultersTotalTotal,
+                    'name' => 'Defaulted amount',
+                    'labels' => $defaultersTotalMonths,
+                ],
+                [
+                    'values' => $defualtersCountTotal,
+                    'name' => 'Defaulters',
+                    'labels' => $defualtersCountMonths,
+                ]
             ],
 
             'apartments' => Apartment::with('image', 'landlord')->withCount('rooms')->latest()->take(15)->get(),
@@ -108,21 +158,37 @@ class DashboardScreen extends Screen
      */
     public function layout(): iterable
     {
+        $monthName = Carbon::now()->format('F');
         return [
+            // Layout::metrics([
+            //     'Total Sales'    => 'metrics.sales',
+            //     'Landlords' => 'metrics.visitors',
+            //     'Tenants' => 'metrics.orders',
+            //     'Payments' => 'metrics.total',
+            // ]),
+
             Layout::metrics([
-                'Total Sales'    => 'metrics.sales',
-                'Landlords' => 'metrics.visitors',
-                'Tenants' => 'metrics.orders',
-                'Payments' => 'metrics.total',
+                'Rent Collected (' . $monthName . ')' => 'metrics.rent_collected',
+                'Pending payments' => 'metrics.pending_rent',
+                'Defaulters' => 'metrics.defaulters_count',
+                'Defauters amount' => 'metrics.defaulters_amount',
+            ]),
+
+            Layout::metrics([
+                'Tenants' => 'metrics2.tenants_count',
+                'Apartments' => 'metrics2.apartments_count',
+                'Total rooms' => 'metrics2.rooms_count',
+                'Vacant rooms' => 'metrics2.vaccant_rooms',
             ]),
 
             Layout::columns([
-                ChartLineExample::make('charts', 'Line Chart')
-                    ->description('It is simple Line Charts with different colors.'),
+                PaymentsChart::make('payments', 'Last Payments Chart')
+                    ->description('Payments trend for the last 7 months'),
 
-                ChartBarExample::make('charts', 'Bar Chart')
-                    ->description('It is simple Bar Charts with different colors.'),
+                DefaultersChart::make('defaulters', 'Defualters Chart')
+                    ->description('The defualters trend in the last 7 months'),
             ]),
+
 
             ApartmentsListLayout::class
         ];

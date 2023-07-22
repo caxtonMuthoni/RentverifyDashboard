@@ -31,10 +31,11 @@ class ApartmentsListLayout extends Table
             TD::make('id', 'Image')
                 ->width('150')
                 ->render(function (Apartment $apartment) {
-                    return "<img src='{$apartment->image?->url}'
-                    alt='sample'
-                    style='height:70px; width:auto; margin: 0 auto;'
-                    class='mw-100 d-block img-fluid rounded-1'>";
+                    $url = $apartment->image?->url ? $apartment->image?->url : 'https://s.gravatar.com/avatar/e42bafdc0b76671537f94040a959a7b80846048e1ca662b93765a6383ac9170b?s=80';
+                    return   "<img src='{$url}'
+                alt='sample'
+                style='height:70px; width:auto; margin: 0 auto;'
+                class='mw-100 d-block img-fluid rounded-1'>";
                 }),
             TD::make('name', 'Apartment Name'),
             TD::make('location', 'Apartment Location'),
@@ -44,4 +45,9 @@ class ApartmentsListLayout extends Table
     }
 }
 
-Room::where('apartment_id', 1)->chunk(100, function ($rooms) { foreach ($rooms as $room) { $room->landlord_id = 1;$room->save();}});
+Room::where('apartment_id', 1)->chunk(100, function ($rooms) {
+    foreach ($rooms as $room) {
+        $room->landlord_id = 1;
+        $room->save();
+    }
+});

@@ -30,4 +30,10 @@ class Dispute extends Model
     {
         return $this->belongsTo(Landlord::class);
     }
+
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
 }

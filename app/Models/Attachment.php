@@ -12,7 +12,12 @@ class Attachment extends OrchidAttachment
 
     public function getUrlAttribute(): ?string
     {
-        $url = env('BASE_APP_URL') . '/storage/' . $this->physicalPath();
-        return $url;
+        $path = $this->physicalPath();
+        if ($path) {
+            $url = env('BASE_APP_URL') . '/storage/' . $path;
+            return $url;
+        }
+
+        return '';
     }
 }

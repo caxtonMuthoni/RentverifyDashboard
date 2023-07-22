@@ -35,6 +35,11 @@ class Defaulter extends Model
         return $query->where('landlord_id', Landlord::where('user_id', auth()->id())->value('id'));
     }
 
+    public function scopeTenantDefaulter($query)
+    {
+        return $query->where('tenant_id', Tenant::where('user_id', auth()->id())->value('id'));
+    }
+
     public function scopeNotPaid($query)
     {
         return $query->where('has_paid', false);

@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 
 class LeaseAgreement extends Model
 {
-    use HasFactory, AsSource;
+    use HasFactory, AsSource, Filterable;
 
     protected $appends = ['unsigned_url', 'signed_url', 'landlord_signed_url'];
 
@@ -57,4 +58,10 @@ class LeaseAgreement extends Model
     {
         return $this->belongsTo(Room::class);
     }
+
+    public function apartment()
+    {
+        return $this->hasOneThrough(Apartment::class, Room::class, 'id', 'id', 'room_id', 'apartment_id');
+    }
+
 }

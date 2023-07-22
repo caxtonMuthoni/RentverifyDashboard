@@ -2,10 +2,25 @@
 
 declare(strict_types=1);
 
+use App\Orchid\Screens\ApartmentsScreen;
+use App\Orchid\Screens\ClearanceReportsScreen;
+use App\Orchid\Screens\CountiesScreen;
 use App\Orchid\Screens\DashboardScreen;
+use App\Orchid\Screens\DefaultersScreen;
+use App\Orchid\Screens\DisputesScreen;
+use App\Orchid\Screens\EditSubscriptionPackageScreen;
+use App\Orchid\Screens\LandlordsScreen;
+use App\Orchid\Screens\LeaseAgreementsScreen;
+use App\Orchid\Screens\PaymentsScreen;
+use App\Orchid\Screens\PlacesScreen;
 use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
+use App\Orchid\Screens\RoomsScreen;
+use App\Orchid\Screens\SubscriptionFeaturesScreen;
+use App\Orchid\Screens\SubscriptionPackagesScreen;
+use App\Orchid\Screens\TenantDetailsScreen;
+use App\Orchid\Screens\TenantsScreen;
 use App\Orchid\Screens\User\UserEditScreen;
 use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
@@ -78,3 +93,21 @@ Route::screen('roles', RoleListScreen::class)
 
 
 Route::screen('/dashbord', DashboardScreen::class)->name('platform.dashbord');
+Route::screen('/landlords', LandlordsScreen::class)->name('platform.landlords');
+Route::screen('/tenants', TenantsScreen::class)->name('platform.tenants');
+Route::screen('/tenant/{tenant}', TenantDetailsScreen::class)->name('platform.tenant-details');
+Route::screen('/apartments', ApartmentsScreen::class)->name('platform.apartments');
+Route::screen('/rooms', RoomsScreen::class)->name('platform.rooms');
+Route::screen('/payments', PaymentsScreen::class)->name('platform.payments');
+Route::screen('/defaulters', DefaultersScreen::class)->name('platform.defaulters');
+Route::screen('/lease/agreements', LeaseAgreementsScreen::class)->name('platform.lease-agreements');
+Route::screen('/clearance/reports', ClearanceReportsScreen::class)->name('platform.clearance-reports');
+Route::screen('/disputes', DisputesScreen::class)->name('platform.disputes');
+
+Route::screen('/counties', CountiesScreen::class)->name('platform.counties');
+Route::screen('/places', PlacesScreen::class)->name('platform.places');
+// Route::screen('/disputes', DisputesScreen::class)->name('platform.disputes');
+
+Route::screen('/subscriptions', SubscriptionPackagesScreen::class)->name('platform.packages');
+Route::screen('/subscription/{package?}', EditSubscriptionPackageScreen::class)->name('platform.package-edit');
+Route::screen('/features/subscription/{package?}', SubscriptionFeaturesScreen::class)->name('platform.package-features');
