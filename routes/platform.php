@@ -19,8 +19,10 @@ use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\RoomsScreen;
 use App\Orchid\Screens\SubscriptionFeaturesScreen;
 use App\Orchid\Screens\SubscriptionPackagesScreen;
+use App\Orchid\Screens\SubscriptionsScreen;
 use App\Orchid\Screens\TenantDetailsScreen;
 use App\Orchid\Screens\TenantsScreen;
+use App\Orchid\Screens\TransactionsScreen;
 use App\Orchid\Screens\User\UserEditScreen;
 use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
@@ -111,3 +113,6 @@ Route::screen('/places', PlacesScreen::class)->name('platform.places');
 Route::screen('/subscriptions', SubscriptionPackagesScreen::class)->name('platform.packages');
 Route::screen('/subscription/{package?}', EditSubscriptionPackageScreen::class)->name('platform.package-edit');
 Route::screen('/features/subscription/{package?}', SubscriptionFeaturesScreen::class)->name('platform.package-features');
+
+Route::screen('/subscribers', SubscriptionsScreen::class)->name('platform.subscriptions');
+Route::screen('/transactions', TransactionsScreen::class)->name('platform.transactions');

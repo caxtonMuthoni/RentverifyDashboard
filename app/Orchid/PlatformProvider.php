@@ -97,7 +97,14 @@ class PlatformProvider extends OrchidServiceProvider
                     Menu::make('Subscription packages')
                         ->icon('circle_thin')
                         ->route('platform.packages'),
+                    Menu::make('Subscribers')
+                        ->icon('circle_thin')
+                        ->route('platform.subscriptions'),
+                    Menu::make('Transactions')
+                        ->icon('circle_thin')
+                        ->route('platform.transactions'),
                 ]),
+
 
             Menu::make(__('Users'))
                 ->icon('user')
