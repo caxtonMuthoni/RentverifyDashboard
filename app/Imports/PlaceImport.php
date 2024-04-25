@@ -25,10 +25,11 @@ class PlaceImport implements ToCollection, WithHeadingRow
                 if (isset($county)) {
                     $latitude = $row['latitude'];
                     $longitude = $row['longitude'];
-                    $place = Place::where([['latitude', $latitude], ['longitude', $longitude]])->first();
+                    $title = $row['title'];
+                    $place = Place::where([['latitude', $latitude], ['longitude', $longitude], ['title', $title]])->first();
                     if (!isset($place)) {
                         $place = new Place();
-                        $place->title = $row['title'];
+                        $place->title = $title;
                         $place->county_id = $county->id;
                         $place->latitude = $latitude;
                         $place->longitude = $longitude;
